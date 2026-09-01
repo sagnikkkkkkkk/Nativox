@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from app.keyword_extractor import extract_keywords
+from app.keyword_extractor import extract_keywords, extract_keywords_in_sequence
 from app.language_utils import LANG_LABELS
 
 app = FastAPI(
@@ -52,6 +52,7 @@ class KeywordOut(BaseModel):
 
 class ExtractResponse(BaseModel):
     keywords: list[KeywordOut]
+    keywords_in_order: list[str]
     language_labels: dict
 
 
@@ -63,7 +64,12 @@ def health():
 @app.post("/api/extract-keywords", response_model=ExtractResponse)
 def extract(req: ExtractRequest):
     keywords = extract_keywords(req.text, top_n=req.top_n)
-    return {"keywords": keywords, "language_labels": LANG_LABELS}
+    keywords_in_order = extract_keywords_in_sequence(req.text)
+    return {
+        "keywords": keywords,
+        "keywords_in_order": keywords_in_order,
+        "language_labels": LANG_LABELS,
+    }
 
 
 # --- Serve the static frontend from the same process -----------------

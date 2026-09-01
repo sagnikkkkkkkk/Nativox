@@ -128,3 +128,17 @@ def extract_keywords(text: str, top_n: int = 15):
         r["relative_score"] = round(100 * r["score"] / max_score, 1) if max_score else 0.0
 
     return top
+
+
+def extract_keywords_in_sequence(text: str):
+    """
+    Return every extracted keyword (stopwords removed, duplicates kept)
+    in the exact order they appear in the original text - no ranking,
+    no score. Reuses the same candidate-phrase splitting as
+    extract_keywords(), so it stays in sync with any stopword changes.
+    """
+    phrases = _split_into_candidate_phrases(text)
+    ordered = []
+    for phrase in phrases:
+        ordered.extend(phrase)
+    return ordered
