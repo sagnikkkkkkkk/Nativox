@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text to Keyword</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14151f;
+    --surface:#1c1e2c;
+    --surface-2:#242739;
+    --line:#2d3046;
+    --text:#eceaf5;
+    --text-dim:#9a9ab3;
+
+    --en:#5ac8c8;      /* Latin script accent — teal */
+    --en-soft:rgba(90,200,200,0.14);
+    --hi:#f2a93b;       /* Devanagari accent — marigold */
+    --hi-soft:rgba(242,169,59,0.14);
+    --bn:#e0607a;       /* Bengali script accent — alta red */
+    --bn-soft:rgba(224,96,122,0.14);
+    --mixed:#9b8cff;    /* code-mixed accent — violet */
+    --mixed-soft:rgba(155,140,255,0.14);
+
+    --font-display:'Fraunces', serif;
+    --font-body:'Noto Sans Devanagari','Noto Sans Bengali','Noto Sans', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(90,200,200,0.10), transparent),
+      radial-gradient(ellipse 900px 500px at 100% 0%, rgba(224,96,122,0.08), transparent),
+      var(--ink);
+    color:var(--text);
+    font-family:var(--font-body);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{color:inherit;}
+
+  .wrap{
+    max-width:1080px;
+    margin:0 auto;
+    padding:56px 24px 96px;
+  }
+
+  /* ---------- Hero ---------- */
+  header.hero{margin-bottom:40px;}
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .eyebrow .dots{display:inline-flex; gap:5px;}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;}
+  .eyebrow .dot.en{background:var(--en);}
+  .eyebrow .dot.hi{background:var(--hi);}
+  .eyebrow .dot.bn{background:var(--bn);}
+
+  h1{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:clamp(34px, 5vw, 54px);
+    line-height:1.08;
+    margin:0 0 16px;
+    letter-spacing:-0.01em;
+  }
+  h1 .accent{
+    font-style:italic;
+    background:linear-gradient(90deg, var(--en), var(--hi) 50%, var(--bn));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  p.lede{
+    max-width:640px;
+    color:var(--text-dim);
+    font-size:16.5px;
+    margin:0;
+  }
+  p.lede strong{color:var(--text); font-weight:600;}
+
+  /* ---------- Layout ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:24px;
+    margin-top:36px;
+  }
+  @media(min-width:880px){
+    .grid{grid-template-columns:1fr 1fr;}
+  }
+
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:24px;
+  }
+
+  .panel h2{
+    font-family:var(--font-display);
+    font-size:19px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .panel .panel-sub{
+    color:var(--text-dim);
+    font-size:13.5px;
+    margin:0 0 18px;
+  }
+
+  textarea{
+    width:100%;
+    min-height:190px;
+    resize:vertical;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    color:var(--text);
+    font-family:var(--font-body);
+    font-size:15px;
+    padding:14px 16px;
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  textarea:focus{border-color:var(--en);}
+  textarea::placeholder{color:#5c5e78;}
+
+  /* ---- Signature element: live script spectrum meter ---- */
+  .spectrum{margin-top:16px;}
+  .spectrum-label{
+    display:flex;
+    justify-content:space-between;
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    color:var(--text-dim);
+    margin-bottom:7px;
+  }
+  .spectrum-bar{
+    display:flex;
+    height:9px;
+    border-radius:5px;
+    overflow:hidden;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+  }
+  .spectrum-bar .seg{
+    height:100%;
+    transition:width .25s ease;
+  }
+  .spectrum-bar .seg.en{background:var(--en);}
+  .spectrum-bar .seg.hi{background:var(--hi);}
+  .spectrum-bar .seg.bn{background:var(--bn);}
+  .spectrum-legend{
+    display:flex;
+    gap:16px;
+    margin-top:9px;
+    font-size:12px;
+    color:var(--text-dim);
+    flex-wrap:wrap;
+  }
+  .spectrum-legend span{display:inline-flex; align-items:center; gap:6px;}
+  .swatch{width:8px;height:8px;border-radius:2px;display:inline-block;}
+  .swatch.en{background:var(--en);}
+  .swatch.hi{background:var(--hi);}
+  .swatch.bn{background:var(--bn);}
+
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-top:20px;
+    flex-wrap:wrap;
+  }
+
+  .samples{display:flex; gap:8px; flex-wrap:wrap;}
+  .chip{
+    font-family:var(--font-mono);
+    font-size:12px;
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--text-dim);
+    padding:6px 12px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .chip:hover{border-color:var(--en); color:var(--text);}
+
+  button.primary{
+    background:linear-gradient(90deg, var(--en), var(--mixed));
+    border:none;
+    color:#101120;
+    font-weight:700;
+    font-size:14.5px;
+    font-family:var(--font-body);
+    padding:12px 22px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease;
+    white-space:nowrap;
+  }
+  button.primary:hover{transform:translateY(-1px); box-shadow:0 8px 20px rgba(90,200,200,0.18);}
+  button.primary:disabled{opacity:0.5; cursor:progress; transform:none; box-shadow:none;}
+
+  /* ---------- Results ---------- */
+  #results-panel .panel-sub{margin-bottom:14px;}
+  .empty-state{
+    color:var(--text-dim);
+    font-size:14px;
+    border:1px dashed var(--line);
+    border-radius:10px;
+    padding:28px 18px;
+    text-align:center;
+  }
+  .error-state{
+    color:var(--bn);
+    font-size:14px;
+    border:1px solid var(--bn);
+    background:var(--bn-soft);
+    border-radius:10px;
+    padding:14px 16px;
+  }
+
+  .kw-list{display:flex; flex-direction:column; gap:10px;}
+  .kw-row{
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:center;
+    gap:12px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-left:3px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+  }
+  .kw-row.lang-en{border-left-color:var(--en);}
+  .kw-row.lang-hi{border-left-color:var(--hi);}
+  .kw-row.lang-bn{border-left-color:var(--bn);}
+  .kw-row.lang-mixed{border-left-color:var(--mixed);}
+
+  .kw-main{min-width:0;}
+  .kw-phrase{font-size:15.5px; font-weight:500; word-break:break-word;}
+  .kw-meta{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:6px;
+  }
+  .lang-tag{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    padding:2px 7px;
+    border-radius:5px;
+  }
+  .lang-tag.lang-en{background:var(--en-soft); color:var(--en);}
+  .lang-tag.lang-hi{background:var(--hi-soft); color:var(--hi);}
+  .lang-tag.lang-bn{background:var(--bn-soft); color:var(--bn);}
+  .lang-tag.lang-mixed{background:var(--mixed-soft); color:var(--mixed);}
+
+  .score-bar-track{
+    width:64px;
+    height:5px;
+    border-radius:3px;
+    background:var(--line);
+    overflow:hidden;
+  }
+  .score-bar-fill{height:100%; border-radius:3px;}
+  .score-num{
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--text-dim);
+    text-align:right;
+    min-width:34px;
+  }
+  .kw-score{display:flex; align-items:center; gap:8px;}
+
+  footer{
+    margin-top:56px;
+    padding-top:22px;
+    border-top:1px solid var(--line);
+    color:var(--text-dim);
+    font-size:12.5px;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  footer code{
+    font-family:var(--font-mono);
+    background:var(--surface-2);
+    padding:1px 6px;
+    border-radius:4px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; scroll-behavior:auto !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">
+      <span class="dots"><span class="dot en"></span><span class="dot hi"></span><span class="dot bn"></span></span>
+      TEXT TO KEYWORD &middot; MULTILINGUAL EXTRACTION
+    </div>
+    <h1>Keywords, across <span class="accent">three scripts</span> and however you mix them.</h1>
+    <p class="lede">A single script-aware extraction pass for <strong>English</strong>, <strong>Hindi</strong>, and <strong>Bengali</strong> — including sentences that freely switch between them mid-line. No per-language pipeline, no translation step first.</p>
+  </header>
+
+  <div class="grid">
+    <section class="panel" id="input-panel">
+      <h2>Input text</h2>
+      <p class="panel-sub">Paste or type a sentence, a paragraph, or a code-mixed line.</p>
+
+      <textarea id="text-input" placeholder="e.g. ei video ta te amra ekta automated dubbing system use korchi, jekhane speech recognition আর neural machine translation একসাথে kaj kore..."></textarea>
+
+      <div class="spectrum">
+        <div class="spectrum-label">
+          <span>SCRIPT MIX</span>
+          <span id="spectrum-total">0 characters</span>
+        </div>
+        <div class="spectrum-bar">
+          <div class="seg en" id="seg-en" style="width:0%"></div>
+          <div class="seg hi" id="seg-hi" style="width:0%"></div>
+          <div class="seg bn" id="seg-bn" style="width:0%"></div>
+        </div>
+        <div class="spectrum-legend">
+          <span><i class="swatch en"></i>Latin <span id="pct-en">0%</span></span>
+          <span><i class="swatch hi"></i>Devanagari <span id="pct-hi">0%</span></span>
+          <span><i class="swatch bn"></i>Bengali <span id="pct-bn">0%</span></span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="samples">
+          <button class="chip" data-sample="en">Try: English</button>
+          <button class="chip" data-sample="hi">Try: Hindi</button>
+          <button class="chip" data-sample="bn">Try: Bengali</button>
+          <button class="chip" data-sample="mixed">Try: Code-mixed</button>
+        </div>
+        <button class="primary" id="extract-btn">Extract keywords</button>
+      </div>
+    </section>
+
+    <section class="panel" id="results-panel">
+      <h2>Extracted keywords</h2>
+      <p class="panel-sub">Single words only, no stopwords · left border shows detected script</p>
+      <div id="results-container">
+        <div class="empty-state">Extracted keywords will appear here, ranked by score.</div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <span>Script-aware RAKE · degree/frequency word scoring</span>
+    <span>API: <code>POST /api/extract-keywords</code></span>
+  </footer>
+
+</div>
+
+<script>
+  const API_ENDPOINT = '/api/extract-keywords';
+
+  const textInput = document.getElementById('text-input');
+  const extractBtn = document.getElementById('extract-btn');
+  const resultsContainer = document.getElementById('results-container');
+
+  const SAMPLES = {
+    en: "Automated video dubbing systems combine speech recognition, neural machine translation, and text-to-speech synthesis to make global content accessible across languages.",
+    hi: "यह एक स्वचालित वीडियो डबिंग प्रणाली है जो वाक् पहचान, तंत्रिका मशीन अनुवाद और वाक् संश्लेषण का उपयोग करके मूल अभिनेता की आवाज़ को सुरक्षित रखने का प्रयास करती है।",
+    bn: "এটি একটি স্বয়ংক্রিয় ভিডিও ডাবিং সিস্টেম যা বক্তৃতা স্বীকৃতি, স্নায়বিক মেশিন অনুবাদ এবং বাক্‌ সংশ্লেষণ ব্যবহার করে মূল অভিনেতার কণ্ঠস্বর সংরক্ষণের চেষ্টা করে।",
+    mixed: "ei video ta te amra ekta automated dubbing system use korchi, jekhane speech recognition আর neural machine translation একসাথে kaj kore original actor এর awaaz বজায় রাখার জন্য।",
+  };
+
+  // ---------- Script spectrum meter (live, client-side) ----------
+  function scriptOf(ch){
+    const cp = ch.codePointAt(0);
+    if (cp >= 0x0900 && cp <= 0x097F) return 'hi';
+    if (cp >= 0x0980 && cp <= 0x09FF) return 'bn';
+    if (/[A-Za-z]/.test(ch)) return 'en';
+    return null;
+  }
+
+  function updateSpectrum(){
+    const text = textInput.value;
+    const counts = {en:0, hi:0, bn:0};
+    for (const ch of text){
+      const s = scriptOf(ch);
+      if (s) counts[s]++;
+    }
+    const total = counts.en + counts.hi + counts.bn;
+    document.getElementById('spectrum-total').textContent =
+      total ? `${total} script characters` : '0 characters';
+
+    ['en','hi','bn'].forEach(k => {
+      const pct = total ? (100 * counts[k] / total) : 0;
+      document.getElementById(`seg-${k}`).style.width = pct + '%';
+      document.getElementById(`pct-${k}`).textContent = Math.round(pct) + '%';
+    });
+  }
+
+  textInput.addEventListener('input', updateSpectrum);
+
+  // ---------- Sample chips ----------
+  document.querySelectorAll('.chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      textInput.value = SAMPLES[btn.dataset.sample];
+      updateSpectrum();
+      textInput.focus();
+    });
+  });
+
+  // ---------- Extraction ----------
+  const LANG_COLOR_VAR = {en:'--en', hi:'--hi', bn:'--bn', mixed:'--mixed'};
+
+  function renderResults(keywords){
+    if (!keywords.length){
+      resultsContainer.innerHTML = '<div class="empty-state">No keywords found — try a longer or more descriptive passage.</div>';
+      return;
+    }
+    const rows = keywords.map(kw => {
+      const lang = kw.language || 'en';
+      const colorVar = LANG_COLOR_VAR[lang] || '--en';
+      return `
+        <div class="kw-row lang-${lang}">
+          <div class="kw-main">
+            <div class="kw-phrase">${escapeHtml(kw.word)}</div>
+            <div class="kw-meta">
+              <span class="lang-tag lang-${lang}">${lang}</span>
+            </div>
+          </div>
+          <div class="kw-score">
+            <div class="score-bar-track">
+              <div class="score-bar-fill" style="width:${kw.relative_score}%; background:var(${colorVar})"></div>
+            </div>
+            <span class="score-num">${kw.score}</span>
+          </div>
+        </div>`;
+    }).join('');
+    resultsContainer.innerHTML = `<div class="kw-list">${rows}</div>`;
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  async function extract(){
+    const text = textInput.value.trim();
+    if (!text){
+      resultsContainer.innerHTML = '<div class="empty-state">Enter some text first.</div>';
+      return;
+    }
+    extractBtn.disabled = true;
+    extractBtn.textContent = 'Extracting…';
+    try{
+      const res = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text, top_n: 15}),
+      });
+      if (!res.ok) throw new Error(`Server responded ${res.status}`);
+      const data = await res.json();
+      renderResults(data.keywords);
+    } catch (err){
+      resultsContainer.innerHTML = `<div class="error-state">Couldn't reach the backend — is it running? (${escapeHtml(err.message)})</div>`;
+    } finally {
+      extractBtn.disabled = false;
+      extractBtn.textContent = 'Extract keywords';
+    }
+  }
+
+  extractBtn.addEventListener('click', extract);
+  textInput.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') extract();
+  });
+
+  updateSpectrum();
+</script>
+
+</body>
+</html>

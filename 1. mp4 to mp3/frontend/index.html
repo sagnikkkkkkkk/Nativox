@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MP4 → MP3 Extractor</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --border: #262b36;
+    --accent: #5b8cff;
+    --accent-hover: #4472e8;
+    --text: #e7e9ee;
+    --muted: #8b91a1;
+    --error: #ff6b6b;
+    --success: #4cd97b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+  }
+  h1 {
+    font-size: 20px;
+    margin: 0 0 4px;
+  }
+  p.sub {
+    color: var(--muted);
+    margin: 0 0 24px;
+    font-size: 14px;
+  }
+  #dropzone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 32px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  #dropzone.drag {
+    border-color: var(--accent);
+    background: rgba(91, 140, 255, 0.08);
+  }
+  #dropzone p {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  #fileInput { display: none; }
+  .filename {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text);
+    word-break: break-all;
+  }
+  button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover:not(:disabled) { background: var(--accent-hover); }
+  button:disabled {
+    background: #2b2f3a;
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+  #status {
+    margin-top: 16px;
+    font-size: 13px;
+    min-height: 18px;
+  }
+  #status.error { color: var(--error); }
+  #status.success { color: var(--success); }
+  #result {
+    margin-top: 20px;
+    display: none;
+  }
+  audio { width: 100%; margin-top: 10px; }
+  .download-link {
+    display: inline-block;
+    margin-top: 12px;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .download-link:hover { text-decoration: underline; }
+  .icon { font-size: 28px; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>MP4 → MP3 Extractor</h1>
+  <p class="sub">Upload a video, get its raw audio track back as an MP3. Nothing else changes.</p>
+
+  <div id="dropzone">
+    <div class="icon">🎬</div>
+    <p>Click to choose a video, or drag one here</p>
+    <div class="filename" id="filename"></div>
+  </div>
+  <input type="file" id="fileInput" accept=".mp4,.mov,.mkv,.avi,.webm,.m4v" />
+
+  <button id="extractBtn" disabled>Extract Audio</button>
+  <div id="status"></div>
+
+  <div id="result">
+    <audio id="player" controls></audio>
+    <br />
+    <a id="downloadLink" class="download-link" download>⬇ Download MP3</a>
+  </div>
+</div>
+
+<script>
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('fileInput');
+  const filenameEl = document.getElementById('filename');
+  const extractBtn = document.getElementById('extractBtn');
+  const statusEl = document.getElementById('status');
+  const resultEl = document.getElementById('result');
+  const player = document.getElementById('player');
+  const downloadLink = document.getElementById('downloadLink');
+
+  let selectedFile = null;
+
+  dropzone.addEventListener('click', () => fileInput.click());
+
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.classList.add('drag');
+  });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('drag');
+    if (e.dataTransfer.files.length) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) handleFile(fileInput.files[0]);
+  });
+
+  function handleFile(file) {
+    selectedFile = file;
+    filenameEl.textContent = file.name;
+    extractBtn.disabled = false;
+    statusEl.textContent = '';
+    statusEl.className = '';
+    resultEl.style.display = 'none';
+  }
+
+  extractBtn.addEventListener('click', async () => {
+    if (!selectedFile) return;
+
+    extractBtn.disabled = true;
+    statusEl.className = '';
+    statusEl.textContent = 'Extracting audio… this can take a moment for longer videos.';
+    resultEl.style.display = 'none';
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const response = await fetch('/extract', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        let message = 'Extraction failed.';
+        try {
+          const errJson = await response.json();
+          message = errJson.detail || message;
+        } catch (_) {}
+        throw new Error(message);
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+
+      player.src = url;
+      downloadLink.href = url;
+      downloadLink.download = selectedFile.name.replace(/\.[^/.]+$/, '') + '.mp3';
+
+      resultEl.style.display = 'block';
+      statusEl.textContent = 'Done!';
+      statusEl.className = 'success';
+    } catch (err) {
+      statusEl.textContent = err.message || 'Something went wrong.';
+      statusEl.className = 'error';
+    } finally {
+      extractBtn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>
