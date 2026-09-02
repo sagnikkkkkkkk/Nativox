@@ -203,6 +203,7 @@
     transition:all .15s ease;
   }
   .chip:hover{border-color:var(--en); color:var(--text);}
+  .panel-actions{display:flex; gap:8px; margin-top:14px;}
 
   button.primary{
     background:linear-gradient(90deg, var(--en), var(--mixed));
@@ -380,6 +381,10 @@
       <div id="sequence-container">
         <div class="empty-state">The in-order keyword sequence will appear here.</div>
       </div>
+      <div class="panel-actions">
+        <button class="chip" id="copy-sequence-btn">Copy text</button>
+        <button class="chip" id="download-sequence-btn">Download .txt</button>
+      </div>
     </section>
   </div>
 
@@ -387,7 +392,11 @@
     <h2>Extracted keywords</h2>
     <p class="panel-sub">Single words only, no stopwords · left border shows detected script</p>
     <div id="results-container">
-      <div class="empty-state">Extracted keywords will appear here, ranked by scoby score.</div>
+      <div class="empty-state">Extracted keywords will appear here, ranked by score.</div>
+    </div>
+    <div class="panel-actions">
+      <button class="chip" id="copy-ranked-btn">Copy text</button>
+      <button class="chip" id="download-ranked-btn">Download .txt</button>
     </div>
   </section>
 
@@ -404,6 +413,8 @@
   const textInput = document.getElementById('text-input');
   const extractBtn = document.getElementById('extract-btn');
   const resultsContainer = document.getElementById('results-container');
+  let lastKeywords = [];
+  let lastSequence = [];
 
   const SAMPLES = {
     en: "Automated video dubbing systems combine speech recognition, neural machine translation, and text-to-speech synthesis to make global content accessible across languages.",
@@ -511,6 +522,8 @@
       });
       if (!res.ok) throw new Error(`Server responded ${res.status}`);
       const data = await res.json();
+      lastKeywords = data.keywords;
+      lastSequence = data.keywords_in_order;
       renderResults(data.keywords);
       renderSequence(data.keywords_in_order);
     } catch (err){
@@ -524,6 +537,43 @@
   extractBtn.addEventListener('click', extract);
   textInput.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') extract();
+  });
+
+  // ---------- Copy / Download ----------
+  function downloadText(filename, text){
+    const blob = new Blob([text], {type: 'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  async function copyText(text, btn){
+    try{
+      await navigator.clipboard.writeText(text);
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = original; }, 1200);
+    } catch(err){
+      alert('Could not copy: ' + err.message);
+    }
+  }
+
+  document.getElementById('copy-ranked-btn').addEventListener('click', (e) => {
+    copyText(lastKeywords.map(k => k.word).join('\n'), e.target);
+  });
+  document.getElementById('download-ranked-btn').addEventListener('click', () => {
+    downloadText('keywords-ranked.txt', lastKeywords.map(k => k.word).join('\n'));
+  });
+  document.getElementById('copy-sequence-btn').addEventListener('click', (e) => {
+    copyText(lastSequence.join(' '), e.target);
+  });
+  document.getElementById('download-sequence-btn').addEventListener('click', () => {
+    downloadText('keywords-in-order.txt', lastSequence.join(' '));
   });
 
   updateSpectrum();
