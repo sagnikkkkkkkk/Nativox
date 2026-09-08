@@ -1,910 +1,772 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Nativox — Stage 5: Sentence Reformation & Précis</title>
-<title>Nativox — Sentence Reformation & Precise Output</title>
-<link rel="icon" type="image/webp" href="/static/favicon.webp" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0B0F17;
-    --surface: #141B26;
-    --surface-alt: #1C2636;
-    --border: #2B384E;
-    --text: #F1F5F9;
-    --bg: #0F172A;
-    --surface: #1E293B;
-    --surface-alt: #27354A;
-    --border: #334155;
-    --text: #F8FAFC;
-    --text-muted: #94A3B8;
-    --primary: #38BDF8;
-    --primary-glow: rgba(56, 189, 248, 0.15);
-    --accent: #E8A33D;
-    --accent-glow: rgba(232, 163, 61, 0.15);
-    --success: #34D399;
-    --danger: #F87171;
-    --radius: 12px;
-    --primary: #2563EB;
-    --primary-hover: #1D4ED8;
-    --accent: #D97706;
-    --success: #059669;
-    --danger: #DC2626;
-    --radius: 8px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    padding: 40px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .container {
-    width: 100%;
-    max-width: 880px;
-    max-width: 860px;
-  }
-  header {
-    margin-bottom: 32px;
-    text-align: center;
-    margin-bottom: 28px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 20px;
-  }
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--primary-glow);
-    color: var(--primary);
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    padding: 4px 14px;
-    border-radius: 999px;
-    font-size: 12.5px;
-  .kicker {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    color: var(--primary);
-    margin-bottom: 6px;
-  }
-  h1 {
-    font-size: 28px;
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    background: linear-gradient(135deg, #FFF 40%, var(--primary) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: var(--text);
-    margin-bottom: 6px;
-  }
-  .subtitle {
-    font-size: 14.5px;
-    font-size: 14px;
-    color: var(--text-muted);
-    line-height: 1.5;
-  }
-  
-  /* Tabs */
-  .tabs {
-    display: flex;
-
-  /* Card */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 6px;
-    margin-bottom: 24px;
-    gap: 6px;
-    padding: 24px;
-    margin-bottom: 20px;
-  }
-  .tab-btn {
-    flex: 1;
-    padding: 12px 18px;
-    border: none;
-    background: transparent;
-    color: var(--text-muted);
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  .label-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 10px;
-  }
-  .tab-btn.active {
-    background: var(--surface-alt);
-    color: var(--primary);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    border: 1px solid rgba(56, 189, 248, 0.3);
-  label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  /* Main Panel */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px;
-    margin-bottom: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-  .label-note {
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-  
-  .section-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 12px;
-
-  /* Sample chips */
-  .samples {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .examples-bar {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 16px;
-    margin-bottom: 14px;
-  }
-  .chip {
-  .sample-btn {
-    font-size: 12px;
-    padding: 4px 10px;
-    padding: 5px 12px;
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    border-radius: 4px;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.15s ease;
-    font-family: inherit;
-    transition: background 0.15s ease, color 0.15s ease;
-  }
-  .chip:hover {
-  .sample-btn:hover {
-    color: var(--text);
-    border-color: var(--primary);
-    background: #334155;
-    border-color: #475569;
-  }
-  
-
-  textarea {
-    width: 100%;
-    min-height: 120px;
-    background: var(--bg);
-    background: #0B1120;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    border-radius: var(--radius);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 15px;
-    padding: 14px;
-    font-size: 14.5px;
-    padding: 12px 14px;
-    line-height: 1.6;
-    outline: none;
-    transition: border-color 0.2s ease;
-    resize: vertical;
-  }
-  textarea:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px var(--primary-glow);
-  }
-  
-  .actions {
-
-  .action-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 16px;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .lang-tag {
-  .meta-note {
-    font-size: 13px;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .lang-tag b {
-    color: var(--accent);
-  .meta-note b {
-    color: var(--text);
-  }
-  
-  .btn-submit {
-    background: linear-gradient(135deg, #0284C7, #0369A1);
-    color: #FFF;
-  .btn-run {
-    background: var(--primary);
-    color: #FFFFFF;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    padding: 10px 22px;
-    border-radius: 6px;
-    font-family: inherit;
-    font-size: 14px;
-    font-size: 13.5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
-    transition: background 0.15s ease;
-  }
-  .btn-submit:hover {
-    filter: brightness(1.1);
-  .btn-run:hover {
-    background: var(--primary-hover);
-  }
-  .btn-submit:disabled {
-    opacity: 0.5;
-  .btn-run:disabled {
-    background: #475569;
-    cursor: not-allowed;
-  }
-  
-  /* Results view */
-  .output-box {
-
-  /* Output sections */
-  .output-container {
-    display: none;
-    margin-top: 24px;
-    border-top: 1px solid var(--border);
-    padding-top: 20px;
-    display: none;
-  }
-  .output-box.show {
-  .output-container.show {
-    display: block;
-    animation: fadeIn 0.3s ease;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
-
-  .step-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 18px;
-  }
-  
-  .output-grid {
-  .step-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 12px;
-    margin-bottom: 14px;
-    border-bottom: 1px solid var(--border);
-  }
-  .step-title {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    color: var(--text);
-  }
-  .step-badge {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 4px;
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-  }
-  .step-badge.highlight {
-    background: #1E3A8A;
-    color: #93C5FD;
-    border-color: #2563EB;
-  }
-
-  .subgrid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
-    margin-top: 14px;
-    gap: 14px;
-  }
-  @media(min-width: 680px) {
-    .output-grid { grid-template-columns: 1fr 1fr; }
-  @media (min-width: 680px) {
-    .subgrid {
-      grid-template-columns: 1fr 1fr;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nativox — Sentence Reformation & Precise Output</title>
+  <link rel="icon" type="image/webp" href="/static/favicon.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0F172A;
+      --surface: #1E293B;
+      --surface-alt: #27354A;
+      --border: #334155;
+      --border-focus: #3B82F6;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --success: #059669;
+      --success-bg: #064E3B;
+      --success-text: #A7F3D0;
+      --accent: #D97706;
+      --accent-bg: #78350F;
+      --accent-text: #FDE68A;
+      --danger: #DC2626;
+      --danger-bg: #7F1D1D;
+      --danger-text: #FECACA;
+      --radius: 8px;
     }
-  }
-  
-  .result-card {
-    background: var(--bg);
 
-  .field-card {
-    background: #0B1120;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-    position: relative;
-    border-radius: 6px;
-    padding: 14px;
-  }
-  .result-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-  .field-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .result-card-header .highlight {
-    color: var(--primary);
-  }
-  .copy-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    font-size: 11px;
-    padding: 3px 8px;
-    padding: 2px 6px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    font-family: inherit;
-  }
-  .copy-btn:hover {
-    color: var(--text);
-    border-color: var(--text);
-    border-color: #64748B;
-  }
-  
-  .result-text {
-    font-size: 16px;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  .field-text {
-    font-size: 14.5px;
-    line-height: 1.6;
-    color: var(--text);
-  }
-  .result-text.hindi {
-  .field-text.hindi {
-    font-family: 'Noto Serif Devanagari', serif;
-    font-size: 18px;
-    color: #F8FAFC;
-    font-size: 16px;
-    color: #FFFFFF;
-  }
-  
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 32px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-  /* Metrics bar */
-  .metrics-bar {
-  .metrics-strip {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    gap: 16px;
-    background: var(--surface-alt);
-    background: #0B1120;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-top: 16px;
-    border-radius: 6px;
-    padding: 10px 14px;
-    margin-top: 12px;
-    flex-wrap: wrap;
-    font-size: 12.5px;
-  }
-  .metric-item {
-    font-size: 13px;
-    color: var(--text-muted);
-  }
-  .metric-item b {
-    color: var(--text);
-  }
-  .metric-badge {
-  .budget-tag {
-    margin-left: auto;
-    font-size: 12px;
-    font-size: 11.5px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 6px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 8px;
-    border-radius: 4px;
-    background: #064E3B;
-    color: #6EE7B7;
-    border: 1px solid var(--success);
-  }
-  .metric-badge.success {
-    background: rgba(52, 211, 153, 0.15);
-    color: var(--success);
-    border: 1px solid rgba(52, 211, 153, 0.3);
-  }
-  
-  /* Progress ratio bar */
-  .ratio-meter {
-    width: 100%;
-    height: 6px;
-    background: var(--surface-alt);
-    border-radius: 3px;
-    margin-top: 8px;
-    overflow: hidden;
-  }
-  .ratio-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #38BDF8, #34D399);
-    width: 0%;
-    transition: width 0.4s ease;
-  }
-  
-  /* Disfluency chips */
-  .fillers-list {
+    .container {
+      width: 100%;
+      max-width: 860px;
+    }
 
-  /* Filler tag */
-  .fillers-row {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-    font-size: 11px;
-  }
-  .filler-tag {
-    font-size: 11px;
-    background: rgba(248, 113, 113, 0.15);
-    color: var(--danger);
-    border: 1px solid rgba(248, 113, 113, 0.3);
-    padding: 2px 8px;
-    padding: 2px 6px;
-    background: #450A0A;
-    color: #FCA5A5;
-    border: 1px solid var(--danger);
-    border-radius: 4px;
-    text-decoration: line-through;
-  }
-  
-  footer {
-    margin-top: 32px;
-    text-align: center;
-    font-size: 12.5px;
-    color: var(--text-muted);
-  }
-</style>
+    header {
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 18px;
+    }
+
+    .kicker {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 4px;
+      margin-bottom: 18px;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.15s, color 0.15s;
+      text-align: center;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background-color: var(--surface-alt);
+    }
+
+    .tab-btn.active {
+      background-color: var(--primary);
+      color: #FFFFFF;
+      font-weight: 600;
+    }
+
+    /* Cards */
+    .card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Samples */
+    .samples-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .samples-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .sample-btn {
+      background-color: var(--surface-alt);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+
+    .sample-btn:hover {
+      background-color: var(--border);
+      border-color: var(--text-muted);
+    }
+
+    /* Input */
+    .input-wrapper {
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 110px;
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+      transition: border-color 0.15s;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--border-focus);
+    }
+
+    .actions-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .left-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .word-count-badge {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .btn {
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.15s, opacity 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: var(--surface-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background-color: var(--border);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Error Banner */
+    .error-banner {
+      display: none;
+      background-color: var(--danger-bg);
+      border: 1px solid var(--danger);
+      color: var(--danger-text);
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
+
+    /* Output Sections */
+    .output-container {
+      display: none;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .step-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .tag-blue {
+      background-color: #1E3A8A;
+      color: #93C5FD;
+      border: 1px solid #3B82F6;
+    }
+
+    .tag-green {
+      background-color: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid var(--success);
+    }
+
+    .tag-amber {
+      background-color: var(--accent-bg);
+      color: var(--accent-text);
+      border: 1px solid var(--accent);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 640px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .result-box {
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 105px;
+    }
+
+    .result-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .result-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .result-text.hindi {
+      font-family: 'Noto Serif Devanagari', serif;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .copy-btn:hover {
+      color: var(--text);
+      border-color: var(--text-muted);
+    }
+
+    /* Metrics Row */
+    .metrics-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      background-color: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-top: 10px;
+    }
+
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-right: 14px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .metric-val {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .metric-val.highlight {
+      color: #34D399;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <header>
+      <div class="kicker">Nativox Suite &middot; Stage 5</div>
+      <h1>Sentence Reformation & Precise Output</h1>
+      <p class="subtitle">
+        Constructs grammatically complete, meaningful sentences from input keywords or broken speech, and condenses paragraph transcripts into a precise 35% to 40% output in Hindi.
+      </p>
+    </header>
 
-<div class="container">
-  <header>
-    <div class="badge">Nativox · Stage 5 · Port 8012</div>
-    <h1>Sentence Reformation & Précis Compression</h1>
-    <p class="subtitle">Transforms spoken disfluencies into meaningful Hindi, and compresses full MP3 transcripts into 35%–40% précis summaries.</p>
-    <div class="kicker">Stage 5 · Port 8012</div>
-    <h1>Sentence Reformation & Precise Output</h1>
-    <p class="subtitle">Step 1 transforms keywords into meaningful Hindi sentences. Step 2 condenses the content into a 35%–40% precise format.</p>
-  </header>
-
-  <!-- Navigation Tabs -->
-  <div class="tabs">
-    <button class="tab-btn active" id="tabReconstructBtn" onclick="switchTab('reconstruct')">
-      <span>✨</span> Task 1: Meaningful Sentence Reconstruction
-    </button>
-    <button class="tab-btn" id="tabPrecisBtn" onclick="switchTab('precis')">
-      <span>📐</span> Task 2: 35%–40% Paragraph Précis
-    </button>
-  </div>
-
-  <!-- TAB 1: Sentence Reformation -->
-  <div class="card" id="reconstructView">
-    <div class="section-title">
-      <span>Meaningless / Broken Speech Input</span>
-      <span style="font-size: 12px; color: var(--text-muted);">Direct spoken segment or keyword sequence</span>
-  <div class="card">
-    <div class="label-row">
-      <label for="mainInput">Input (Keywords or Spoken Transcript)</label>
-      <span class="label-note">Supports comma-separated keywords or paragraphs from Stage 2</span>
+    <!-- Mode Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-pipeline" onclick="setMode('pipeline')">
+        Unified Pipeline (Step 1 to Step 2)
+      </button>
+      <button class="tab-btn" id="tab-reconstruct" onclick="setMode('reconstruct')">
+        Task 1: Sentence Formulation
+      </button>
+      <button class="tab-btn" id="tab-precis" onclick="setMode('precis')">
+        Task 2: Precise Output (35%-40%)
+      </button>
     </div>
 
-    <div class="examples-bar">
-      <span style="font-size: 12px; color: var(--text-muted); align-self: center;">Try sample:</span>
-      <span class="chip" onclick="loadReconstructSample(1)">Spoken Fillers & Stutter</span>
-      <span class="chip" onclick="loadReconstructSample(2)">Isolated Keyword Sequence</span>
-      <span class="chip" onclick="loadReconstructSample(3)">Broken SVO Fragment</span>
-    <div class="samples">
-      <span style="font-size: 12px; color: var(--text-muted); align-self: center;">Samples:</span>
-      <button class="sample-btn" type="button" onclick="loadSample(1)">Keyword List (Machine Learning)</button>
-      <button class="sample-btn" type="button" onclick="loadSample(2)">Disfluent Spoken Speech</button>
-      <button class="sample-btn" type="button" onclick="loadSample(3)">Full MP3 Paragraph (AI Tutorial)</button>
+    <!-- Input Card -->
+    <div class="card">
+      <div class="card-title">
+        <span id="input-title">Input Keywords or Spoken Transcript</span>
+      </div>
+
+      <div class="samples-bar">
+        <span class="samples-label">Try Sample:</span>
+        <button class="sample-btn" type="button" onclick="loadSample('keywords')">Keywords</button>
+        <button class="sample-btn" type="button" onclick="loadSample('fillers')">Spoken Speech</button>
+        <button class="sample-btn" type="button" onclick="loadSample('paragraph')">Lecture Paragraph</button>
+      </div>
+
+      <div class="input-wrapper">
+        <textarea
+          id="inputText"
+          placeholder="Enter comma-separated keywords, fragmented spoken phrases, or a full transcript paragraph..."
+          oninput="updateWordCount()"
+        ></textarea>
+      </div>
+
+      <div class="actions-bar">
+        <div class="left-actions">
+          <span class="word-count-badge" id="wordCountBadge">0 words</span>
+          <button class="btn btn-secondary" type="button" onclick="clearInput()">Clear</button>
+        </div>
+        <button class="btn btn-primary" id="processBtn" type="button" onclick="handleProcess()">
+          Process
+        </button>
+      </div>
     </div>
 
-    <textarea id="reconstructInput" placeholder="Enter a meaningless, fragmented sentence or keyword sequence (e.g. 'uh video we basically train neural network computer vision model you know')..."></textarea>
-    <textarea id="mainInput" placeholder="Paste keywords (e.g. 'machine learning, neural networks, speech recognition') or transcribed speech..."></textarea>
+    <!-- Error Banner -->
+    <div class="error-banner" id="errorBanner"></div>
 
-    <div class="actions">
-      <div class="lang-tag">
-        Target Language: <b>Hindi (हिंदी)</b> · SOV Grammar
-    <div class="action-bar">
-      <div class="meta-note">
-        Target: <b>Hindi (हिंदी)</b> · SOV Grammar · 35%–40% Precise Target
-      </div>
-      <button class="btn-submit" id="btnReconstruct" onclick="runReconstruct()">Reconstruct Meaning</button>
-      <button class="btn-run" id="btnRun" type="button" onclick="executePipeline()">Process</button>
-    </div>
-  </div>
-
-    <div class="output-box" id="reconstructOutput">
-      <div id="removedFillersBox" style="margin-bottom: 14px; display: none;">
-        <span style="font-size: 12px; color: var(--text-muted);">Removed Disfluencies:</span>
-        <div class="fillers-list" id="fillersList"></div>
-  <div class="output-container" id="outputSection">
-    <!-- STEP 1: Meaningful Sentence Formulation -->
-    <div class="step-box">
-      <div class="step-header">
-        <span class="step-title">Step 1: Meaningful Sentence Formulation</span>
-        <span class="step-badge highlight">Grammar &amp; SOV Restored</span>
-      </div>
-
-      <div class="output-grid">
-        <div class="result-card">
-          <div class="result-card-header">
-            <span>Cleaned Syntax (English)</span>
-            <button class="copy-btn" onclick="copyText('cleanedEnglish')">Copy</button>
-      <div id="fillersContainer" style="display: none; margin-bottom: 12px;">
-        <span style="font-size: 11.5px; color: var(--text-muted);">Removed Disfluencies:</span>
-        <div class="fillers-row" id="fillersList"></div>
-      </div>
-
-      <div class="subgrid">
-        <div class="field-card">
-          <div class="field-label">
-            <span>Synthesized English Syntax</span>
-            <button class="copy-btn" type="button" onclick="copyField('step1English')">Copy</button>
+    <!-- Results Section -->
+    <div class="output-container" id="outputContainer">
+      <!-- Step 1: Meaningful Sentence Formulation -->
+      <div class="card" id="step1Card">
+        <div class="step-header">
+          <span class="step-tag tag-blue">Step 1: Meaningful Sentence Formulation</span>
+          <span class="word-count-badge" id="step1Badge">Formulated</span>
+        </div>
+        <div class="grid-2">
+          <div class="result-box">
+            <div class="result-label">
+              <span>English Reconstruction</span>
+              <button class="copy-btn" onclick="copyText('step1EngText', this)">Copy</button>
+            </div>
+            <div class="result-text" id="step1EngText">-</div>
           </div>
-          <div class="result-text" id="cleanedEnglish"></div>
-          <div class="field-text" id="step1English"></div>
-        </div>
-
-        <div class="result-card">
-          <div class="result-card-header">
-            <span class="highlight">Meaningful Hindi Output</span>
-            <button class="copy-btn" onclick="copyText('meaningfulHindi')">Copy</button>
-        <div class="field-card">
-          <div class="field-label">
-            <span style="color: #93C5FD;">Meaningful Hindi Sentence</span>
-            <button class="copy-btn" type="button" onclick="copyField('step1Hindi')">Copy</button>
+          <div class="result-box">
+            <div class="result-label">
+              <span>Meaningful Hindi</span>
+              <button class="copy-btn" onclick="copyText('step1HiText', this)">Copy</button>
+            </div>
+            <div class="result-text hindi" id="step1HiText">-</div>
           </div>
-          <div class="result-text hindi" id="meaningfulHindi"></div>
-          <div class="field-text hindi" id="step1Hindi"></div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB 2: Paragraph Précis -->
-  <div class="card" id="precisView" style="display: none;">
-    <div class="section-title">
-      <span>Full Spoken Paragraph from MP3</span>
-      <span style="font-size: 12px; color: var(--text-muted);">Direct Faster-Whisper ASR transcript</span>
-    </div>
-
-    <div class="examples-bar">
-      <span style="font-size: 12px; color: var(--text-muted); align-self: center;">Try sample:</span>
-      <span class="chip" onclick="loadPrecisSample(1)">AI & Deep Learning Lecture</span>
-      <span class="chip" onclick="loadPrecisSample(2)">Software Architecture Speech</span>
-    </div>
-
-    <textarea id="precisInput" style="min-height: 140px;" placeholder="Paste the entire transcribed paragraph from Stage 2 (MP3 to Text)..."></textarea>
-
-    <div class="actions">
-      <div class="lang-tag">
-        Compression Target: <b>35% – 40%</b> of initial word count
-    <!-- STEP 2: Precise Output (35%-40% Format) -->
-    <div class="step-box">
-      <div class="step-header">
-        <span class="step-title">Step 2: Precise Output</span>
-        <span class="step-badge">35% - 40% Budget Window</span>
-      </div>
-      <button class="btn-submit" id="btnPrecis" onclick="runPrecis()">Generate 35%-40% Précis</button>
-    </div>
-
-    <div class="output-box" id="precisOutput">
-      <div class="metrics-bar">
-        <div class="metric-item">Original Words: <b id="origCount">0</b></div>
-        <div class="metric-item">Précis Words: <b id="precisCount">0</b></div>
-        <div class="metric-item">Retention Ratio: <b id="ratioVal">0%</b></div>
-        <div class="metric-badge success" id="badgeStatus">
-          <span>✓</span> Within 35% - 40% Target
-        </div>
-        <div class="ratio-meter">
-          <div class="ratio-fill" id="ratioFill"></div>
-        </div>
+        <div class="word-count-badge" id="step1Fillers" style="display: none;"></div>
       </div>
 
-      <div class="output-grid">
-        <div class="result-card">
-          <div class="result-card-header">
-            <span>English Précis (35%-40%)</span>
-            <button class="copy-btn" onclick="copyText('precisEnglish')">Copy</button>
-      <div class="subgrid">
-        <div class="field-card">
-          <div class="field-label">
-            <span>Precise English</span>
-            <button class="copy-btn" type="button" onclick="copyField('step2English')">Copy</button>
+      <!-- Step 2: Precise Output (35%-40%) -->
+      <div class="card" id="step2Card">
+        <div class="step-header">
+          <span class="step-tag tag-green">Step 2: Precise Output (35% - 40% Budget)</span>
+          <span class="step-tag tag-amber" id="budgetBadge">Within Budget</span>
+        </div>
+        <div class="grid-2">
+          <div class="result-box">
+            <div class="result-label">
+              <span>Precise English</span>
+              <button class="copy-btn" onclick="copyText('step2EngText', this)">Copy</button>
+            </div>
+            <div class="result-text" id="step2EngText">-</div>
           </div>
-          <div class="result-text" id="precisEnglish"></div>
-          <div class="field-text" id="step2English"></div>
-        </div>
-
-        <div class="result-card">
-          <div class="result-card-header">
-            <span class="highlight">Meaningful Hindi Précis</span>
-            <button class="copy-btn" onclick="copyText('precisHindi')">Copy</button>
-        <div class="field-card">
-          <div class="field-label">
-            <span style="color: #93C5FD;">Precise Meaningful Hindi</span>
-            <button class="copy-btn" type="button" onclick="copyField('step2Hindi')">Copy</button>
+          <div class="result-box">
+            <div class="result-label">
+              <span>Precise Hindi</span>
+              <button class="copy-btn" onclick="copyText('step2HiText', this)">Copy</button>
+            </div>
+            <div class="result-text hindi" id="step2HiText">-</div>
           </div>
-          <div class="result-text hindi" id="precisHindi"></div>
-          <div class="field-text hindi" id="step2Hindi"></div>
         </div>
-      </div>
-
-      <div class="metrics-strip">
-        <div class="metric-item">Input Words: <b id="origCount">0</b></div>
-        <div class="metric-item">Precise Words: <b id="preciseCount">0</b></div>
-        <div class="metric-item">Retention: <b id="retentionRatio">0%</b></div>
-        <div class="budget-tag" id="budgetTag">Within 35% - 40% Target</div>
+        <div class="metrics-row" id="metricsRow">
+          <div class="metric-item">
+            <span class="metric-label">Input Words</span>
+            <span class="metric-val" id="metricInputWords">0</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Precise Words</span>
+            <span class="metric-val" id="metricPreciseWords">0</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Retention Ratio</span>
+            <span class="metric-val highlight" id="metricRatio">0%</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Target Range</span>
+            <span class="metric-val">35% - 40%</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <footer>
-    Nativox Suite · Final Year Major Project · Guided by Dr. Debjit Ghosh · Department of CSE
-  </footer>
-</div>
+  <script>
+    let currentMode = "pipeline";
 
-<script>
-  function switchTab(tab) {
-    const recTab = document.getElementById('tabReconstructBtn');
-    const precTab = document.getElementById('tabPrecisBtn');
-    const recView = document.getElementById('reconstructView');
-    const precView = document.getElementById('precisView');
+    const samples = {
+      keywords: "student, library, study, exam, tomorrow",
+      fillers: "um actually we are you know going to the market tomorrow basically",
+      paragraph: "In today's lecture, we are basically going to discuss machine learning. Machine learning is, you know, a field of artificial intelligence that uses statistical techniques to give computer systems the ability to learn from data. So basically it allows computers to make decisions without being explicitly programmed for every single task."
+    };
 
-    if (tab === 'reconstruct') {
-      recTab.classList.add('active');
-      precTab.classList.remove('active');
-      recView.style.display = 'block';
-      precView.style.display = 'none';
-    } else {
-      precTab.classList.add('active');
-      recTab.classList.remove('active');
-      precView.style.display = 'block';
-      recView.style.display = 'none';
+    function setMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+      document.getElementById("tab-" + mode).classList.add("active");
+
+      const title = document.getElementById("input-title");
+      const step1Card = document.getElementById("step1Card");
+      const step2Card = document.getElementById("step2Card");
+
+      if (mode === "pipeline") {
+        title.textContent = "Input Keywords or Spoken Transcript";
+        if (step1Card) step1Card.style.display = "block";
+        if (step2Card) step2Card.style.display = "block";
+      } else if (mode === "reconstruct") {
+        title.textContent = "Input Broken Speech or Keywords (Task 1)";
+        if (step1Card) step1Card.style.display = "block";
+        if (step2Card) step2Card.style.display = "none";
+      } else if (mode === "precis") {
+        title.textContent = "Input Full Transcript Paragraph (Task 2)";
+        if (step1Card) step1Card.style.display = "none";
+        if (step2Card) step2Card.style.display = "block";
+      }
     }
-  }
 
-  // Pre-filled samples
-  const recSamples = {
-    1: "uh video we basically train neural network computer vision model you know",
-    2: "speech recognition machine translation natural language processing",
-    3: "we we basically need to make sure that sentence becoming meaningful first"
-  const samples = {
-    1: "machine learning, neural networks, speech recognition",
-    2: "uh video we basically train neural network computer vision model you know",
-    3: "Welcome back guys, in this particular tutorial today, what we are basically going to do is explore how deep learning and artificial neural networks actually work under the hood. You know, many people think that neural networks are like a magic black box, but actually, it is just basic linear algebra, matrix multiplication, and calculus with gradient descent. We will take a sample dataset of images, write a Python script using PyTorch, and see how the loss function decreases step by step until the computer learns to classify cats and dogs accurately."
-  };
+    function loadSample(type) {
+      const textarea = document.getElementById("inputText");
+      textarea.value = samples[type] || "";
+      updateWordCount();
+      hideError();
+    }
 
-  function loadReconstructSample(id) {
-    document.getElementById('reconstructInput').value = recSamples[id];
-  function loadSample(id) {
-    document.getElementById('mainInput').value = samples[id];
-  }
+    function updateWordCount() {
+      const text = document.getElementById("inputText").value.trim();
+      const count = text ? text.split(/\s+/).filter(Boolean).length : 0;
+      document.getElementById("wordCountBadge").textContent = count + (count === 1 ? " word" : " words");
+    }
 
-  const precSamples = {
-    1: "Welcome back guys, in this particular tutorial today, what we are basically going to do is explore how deep learning and artificial neural networks actually work under the hood. You know, many people think that neural networks are like a magic black box, but actually, it is just basic linear algebra, matrix multiplication, and calculus with gradient descent. We will take a sample dataset of images, write a Python script using PyTorch, and see how the loss function decreases step by step until the computer learns to classify cats and dogs accurately.",
-    2: "So today everyone, what we are talking about in this software architecture seminar is building decoupled microservices. In traditional monolithic applications, every module is tightly bundled together, which makes maintenance, debugging, and continuous delivery very difficult. By breaking down the whole system into isolated microservices with clean API contracts, development teams can deploy independent components rapidly without risking cascading failures across the entire cluster."
-  };
+    function clearInput() {
+      document.getElementById("inputText").value = "";
+      updateWordCount();
+      hideError();
+      document.getElementById("outputContainer").style.display = "none";
+    }
 
-  function loadPrecisSample(id) {
-    document.getElementById('precisInput').value = precSamples[id];
-  }
+    function showError(msg) {
+      const el = document.getElementById("errorBanner");
+      el.textContent = msg;
+      el.style.display = "block";
+    }
 
-  // Task 1 execution
-  async function runReconstruct() {
-    const input = document.getElementById('reconstructInput').value.trim();
-  async function executePipeline() {
-    const input = document.getElementById('mainInput').value.trim();
-    if (!input) return;
+    function hideError() {
+      const el = document.getElementById("errorBanner");
+      el.style.display = "none";
+      el.textContent = "";
+    }
 
-    const btn = document.getElementById('btnReconstruct');
-    const btn = document.getElementById('btnRun');
-    btn.disabled = true;
-    btn.textContent = 'Reconstructing...';
-    btn.textContent = 'Processing...';
+    async function handleProcess() {
+      const text = document.getElementById("inputText").value.trim();
+      if (!text) {
+        showError("Please enter keywords, a sentence, or a transcript paragraph.");
+        return;
+      }
 
-    try {
-      const resp = await fetch('/api/reconstruct', {
-      const resp = await fetch('/api/pipeline', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: input, target_language: 'hindi' })
+      hideError();
+      const processBtn = document.getElementById("processBtn");
+      processBtn.disabled = true;
+      processBtn.textContent = "Processing...";
+
+      try {
+        if (currentMode === "pipeline") {
+          await runPipeline(text);
+        } else if (currentMode === "reconstruct") {
+          await runReconstruct(text);
+        } else if (currentMode === "precis") {
+          await runPrecis(text);
+        }
+      } catch (err) {
+        showError(err.message || "An unexpected error occurred while communicating with the server.");
+      } finally {
+        processBtn.disabled = false;
+        processBtn.textContent = "Process";
+      }
+    }
+
+    async function runPipeline(text) {
+      const response = await fetch("/api/pipeline", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text: input,
+          text: text,
+          target_language: "hi",
           min_ratio: 0.35,
-          max_ratio: 0.40,
-          target_language: 'hindi'
+          max_ratio: 0.40
         })
       });
 
-      if (!resp.ok) {
-        throw new Error('Pipeline request failed with status ' + resp.status);
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.detail || "Server returned an error: " + response.status);
       }
 
-      const data = await resp.json();
+      const data = await response.json();
+      document.getElementById("outputContainer").style.display = "block";
+      document.getElementById("step1Card").style.display = "block";
+      document.getElementById("step2Card").style.display = "block";
 
-      document.getElementById('cleanedEnglish').textContent = data.cleaned_english;
-      document.getElementById('meaningfulHindi').textContent = data.meaningful_hindi;
-      // Step 1: Meaningful formulation
-      document.getElementById('step1English').textContent = data.step1_meaningful_english;
-      document.getElementById('step1Hindi').textContent = data.step1_meaningful_hindi;
+      // Step 1 values
+      document.getElementById("step1EngText").textContent = data.step1_meaningful_english || "-";
+      document.getElementById("step1HiText").textContent = data.step1_meaningful_hindi || "-";
 
-      const fillersBox = document.getElementById('removedFillersBox');
-      const fillersBox = document.getElementById('fillersContainer');
-      const fillersList = document.getElementById('fillersList');
-      fillersList.innerHTML = '';
-      if (data.removed_fillers && data.removed_fillers.length > 0) {
-        data.removed_fillers.forEach(f => {
-          const tag = document.createElement('span');
-          tag.className = 'filler-tag';
-          tag.textContent = f;
-          fillersList.appendChild(tag);
+      const fillersEl = document.getElementById("step1Fillers");
       if (data.step1_removed_fillers && data.step1_removed_fillers.length > 0) {
-        data.step1_removed_fillers.forEach(f => {
-          const span = document.createElement('span');
-          span.className = 'filler-tag';
-          span.textContent = f;
-          fillersList.appendChild(span);
-        });
-        fillersBox.style.display = 'block';
+        fillersEl.style.display = "block";
+        fillersEl.textContent = "Removed disfluent fillers: " + data.step1_removed_fillers.join(", ");
       } else {
-        fillersBox.style.display = 'none';
+        fillersEl.style.display = "none";
       }
 
-      document.getElementById('reconstructOutput').classList.add('show');
-    } catch (err) {
-      alert('Error: ' + err.message);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Reconstruct Meaning';
-    }
-  }
-      // Step 2: Precise output
-      document.getElementById('step2English').textContent = data.step2_precise_english;
-      document.getElementById('step2Hindi').textContent = data.step2_precise_hindi;
+      // Step 2 values
+      document.getElementById("step2EngText").textContent = data.step2_precise_english || "-";
+      document.getElementById("step2HiText").textContent = data.step2_precise_hindi || "-";
+      document.getElementById("metricInputWords").textContent = data.original_words || "0";
+      document.getElementById("metricPreciseWords").textContent = data.precise_words || "0";
+      document.getElementById("metricRatio").textContent = (data.retention_ratio_pct || 0) + "%";
 
-  // Task 2 execution
-  async function runPrecis() {
-    const input = document.getElementById('precisInput').value.trim();
-    if (!input) return;
-      document.getElementById('origCount').textContent = data.original_words;
-      document.getElementById('preciseCount').textContent = data.precise_words;
-      document.getElementById('retentionRatio').textContent = data.retention_ratio_pct + '%';
-
-    const btn = document.getElementById('btnPrecis');
-    btn.disabled = true;
-    btn.textContent = 'Compressing to 35%-40%...';
-
-    try {
-      const resp = await fetch('/api/precis', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: input, min_ratio: 0.35, max_ratio: 0.40, target_language: 'hindi' })
-      });
-      const data = await resp.json();
-
-      document.getElementById('origCount').textContent = data.original_word_count;
-      document.getElementById('precisCount').textContent = data.precis_word_count;
-      document.getElementById('ratioVal').textContent = data.retention_ratio_pct + '%';
-      document.getElementById('ratioFill').style.width = Math.min(100, data.retention_ratio_pct) + '%';
-
-      document.getElementById('precisEnglish').textContent = data.precis_english;
-      document.getElementById('precisHindi').textContent = data.precis_hindi;
-
-      const badge = document.getElementById('badgeStatus');
-      const tag = document.getElementById('budgetTag');
+      const budgetBadge = document.getElementById("budgetBadge");
       if (data.is_within_budget) {
-        badge.className = 'metric-badge success';
-        badge.innerHTML = '<span>✓</span> Within 35% - 40% Target';
-        tag.textContent = 'Within Target Budget';
-        tag.style.background = '#064E3B';
-        tag.style.borderColor = '#059669';
-        tag.style.color = '#6EE7B7';
+        budgetBadge.className = "step-tag tag-green";
+        budgetBadge.textContent = "Optimal Budget Met";
       } else {
-        badge.className = 'metric-badge';
-        badge.style.background = 'rgba(232, 163, 61, 0.15)';
-        badge.style.color = 'var(--accent)';
-        badge.innerHTML = `Ratio: ${data.retention_ratio_pct}%`;
-        tag.textContent = 'Ratio: ' + data.retention_ratio_pct + '%';
-        tag.style.background = '#78350F';
-        tag.style.borderColor = '#D97706';
-        tag.style.color = '#FDE68A';
+        budgetBadge.className = "step-tag tag-amber";
+        budgetBadge.textContent = "Ratio: " + data.retention_ratio_pct + "%";
+      }
+    }
+
+    async function runReconstruct(text) {
+      const response = await fetch("/api/reconstruct", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: text,
+          target_language: "hi"
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.detail || "Server error: " + response.status);
       }
 
-      document.getElementById('precisOutput').classList.add('show');
-      document.getElementById('outputSection').classList.add('show');
-    } catch (err) {
-      alert('Error: ' + err.message);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Generate 35%-40% Précis';
-      btn.textContent = 'Process';
+      const data = await response.json();
+      document.getElementById("outputContainer").style.display = "block";
+      document.getElementById("step1Card").style.display = "block";
+      document.getElementById("step2Card").style.display = "none";
+
+      document.getElementById("step1EngText").textContent = data.cleaned_english || "-";
+      document.getElementById("step1HiText").textContent = data.meaningful_hindi || "-";
+
+      const fillersEl = document.getElementById("step1Fillers");
+      if (data.removed_fillers && data.removed_fillers.length > 0) {
+        fillersEl.style.display = "block";
+        fillersEl.textContent = "Removed disfluent fillers: " + data.removed_fillers.join(", ");
+      } else {
+        fillersEl.style.display = "none";
+      }
     }
-  }
 
-  function copyText(elemId) {
-    const text = document.getElementById(elemId).textContent;
-  function copyField(id) {
-    const text = document.getElementById(id).textContent;
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Copied to clipboard!');
-      alert('Copied to clipboard');
-    });
-  }
-</script>
+    async function runPrecis(text) {
+      const response = await fetch("/api/precis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: text,
+          target_language: "hi",
+          min_ratio: 0.35,
+          max_ratio: 0.40
+        })
+      });
 
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.detail || "Server error: " + response.status);
+      }
+
+      const data = await response.json();
+      document.getElementById("outputContainer").style.display = "block";
+      document.getElementById("step1Card").style.display = "none";
+      document.getElementById("step2Card").style.display = "block";
+
+      document.getElementById("step2EngText").textContent = data.precis_english || "-";
+      document.getElementById("step2HiText").textContent = data.precis_hindi || "-";
+      document.getElementById("metricInputWords").textContent = data.original_word_count || "0";
+      document.getElementById("metricPreciseWords").textContent = data.precis_word_count || "0";
+      document.getElementById("metricRatio").textContent = (data.retention_ratio_pct || 0) + "%";
+
+      const budgetBadge = document.getElementById("budgetBadge");
+      if (data.is_within_budget) {
+        budgetBadge.className = "step-tag tag-green";
+        budgetBadge.textContent = "Optimal Budget Met";
+      } else {
+        budgetBadge.className = "step-tag tag-amber";
+        budgetBadge.textContent = "Ratio: " + data.retention_ratio_pct + "%";
+      }
+    }
+
+    function copyText(elementId, btn) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const text = el.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = "Copied";
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 1800);
+      }).catch(() => {
+        btn.textContent = "Failed";
+        setTimeout(() => {
+          btn.textContent = "Copy";
+        }, 1800);
+      });
+    }
+
+    // Initialize word count on load
+    updateWordCount();
+  </script>
 </body>
 </html>
-

@@ -14,6 +14,8 @@ from fastapi.staticfiles import StaticFiles
 from app.precis import generate_precis
 from app.reformer import reconstruct_sentence
 from app.schemas import (
+    PipelineRequest,
+    PipelineResponse,
     PrecisRequest,
     PrecisResponse,
     ReconstructRequest,
