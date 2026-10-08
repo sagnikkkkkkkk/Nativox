@@ -1,20 +1,114 @@
 import json
+import os
+import subprocess
 import sys
+import time
 from pathlib import Path
 from urllib.parse import urlparse
 
 import requests
 
-# One port per stage.
+# One port per HTTP stage. Stage 04 is loaded directly from construct.py.
 STAGES = {
     "mp4_to_mp3": "http://127.0.0.1:8001",
     "mp3_to_text": "http://127.0.0.1:8002",
     "text_to_kw": "http://127.0.0.1:8003",
-    "kw_to_sentence": "http://127.0.0.1:8004",
+    "kw_translation": "http://127.0.0.1:8011",
     "sentence_reformation": "http://127.0.0.1:8012",
     "text_to_mp3": "http://127.0.0.1:8013",
     "merge_mp3_mp4": "http://127.0.0.1:8014",
 }
+
+SERVICE_CONFIG = {
+    "mp4_to_mp3": ("01_MP4_to_MP3\\backend", 8001, "/health"),
+    "mp3_to_text": ("02_MP3_to_Text\\backend", 8002, "/api/languages"),
+    "text_to_kw": ("03_Text_to_Keyword\\backend", 8003, "/api/health"),
+    "kw_translation": (
+        "05a_Keyword_Translation__Sagnik\\backend",
+        8011,
+        "/api/health",
+    ),
+    "sentence_reformation": (
+        "05b_Sentence_Reformation__Atanu\\backend",
+        8012,
+        "/api/health",
+    ),
+    "text_to_mp3": ("06_Converted_Text_to_MP3\\backend", 8013, "/api/health"),
+    "merge_mp3_mp4": ("07_Merge_MP3_with_MP4\\backend", 8014, "/api/health"),
+}
+STARTUP_TIMEOUT_SECONDS = 120
+
+
+def wait_for_service(stage: str, health_path: str) -> None:
+    """Wait until an HTTP stage accepts requests, or fail with its startup output."""
+    deadline = time.monotonic() + STARTUP_TIMEOUT_SECONDS
+    url = f"{STAGES[stage]}{health_path}"
+    last_error = "no response"
+    while time.monotonic() < deadline:
+        try:
+            response = requests.get(url, timeout=3)
+            if response.ok:
+                return
+            last_error = f"HTTP {response.status_code}: {response.text[:200]}"
+        except requests.RequestException as exc:
+            last_error = str(exc)
+        time.sleep(1)
+    raise SystemExit(
+        f"Stage '{stage}' did not become ready at {url} within "
+        f"{STARTUP_TIMEOUT_SECONDS} seconds ({last_error})."
+    )
+
+
+def start_services(root: Path) -> list[subprocess.Popen]:
+    """Start missing HTTP stages and return only processes owned by this run."""
+    owned_processes = []
+    for stage, (relative_dir, port, health_path) in SERVICE_CONFIG.items():
+        try:
+            response = requests.get(f"{STAGES[stage]}{health_path}", timeout=2)
+            if response.ok:
+                print(f"[ready] {stage} is already running on port {port}")
+                continue
+        except requests.RequestException:
+            pass
+
+        backend_dir = root / relative_dir
+        if not backend_dir.is_dir():
+            raise SystemExit(f"Backend directory for '{stage}' was not found: {backend_dir}")
+        print(f"[start] {stage} on port {port}")
+        process = subprocess.Popen(
+            [
+                sys.executable,
+                "-m",
+                "uvicorn",
+                "main:app",
+                "--host",
+                "127.0.0.1",
+                "--port",
+                str(port),
+            ],
+            cwd=backend_dir,
+            env=os.environ.copy(),
+        )
+        owned_processes.append(process)
+        try:
+            wait_for_service(stage, health_path)
+        except SystemExit:
+            stop_services(owned_processes)
+            raise
+    return owned_processes
+
+
+def stop_services(processes: list[subprocess.Popen]) -> None:
+    """Stop only service processes started by this pipeline invocation."""
+    for process in reversed(processes):
+        if process.poll() is None:
+            process.terminate()
+    for process in processes:
+        try:
+            process.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
 
 
 def call(stage: str, path: str, **kwargs) -> requests.Response:
@@ -74,7 +168,9 @@ def json_result(response: requests.Response, stage: str) -> dict:
     return result
 
 
-def run_pipeline(mp4_path: str, work_dir: str | None = None) -> Path:
+def run_pipeline(
+    mp4_path: str, work_dir: str | None = None, auto_start: bool = True
+) -> Path:
     input_path = Path(mp4_path).expanduser().resolve()
     if not input_path.is_file():
         raise SystemExit(f"Input video was not found: {input_path}")
@@ -84,6 +180,15 @@ def run_pipeline(mp4_path: str, work_dir: str | None = None) -> Path:
     work = Path(work_dir)
     work.mkdir(parents=True, exist_ok=True)
 
+    root = Path(__file__).resolve().parent.parent
+    owned_processes = start_services(root) if auto_start else []
+    try:
+        return _run_pipeline_steps(input_path, work, root)
+    finally:
+        stop_services(owned_processes)
+
+
+def _run_pipeline_steps(input_path: Path, work: Path, root: Path) -> Path:
     # Stage 01: video -> audio
     print("[01] Extracting audio...")
     with input_path.open("rb") as f:
@@ -125,23 +230,44 @@ def run_pipeline(mp4_path: str, work_dir: str | None = None) -> Path:
         json.dumps(keywords, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"     {len(keywords)} keywords: {keywords}")
 
-    # Stage 04: keywords -> grammatical sentence.
+    # Stage 04: keywords -> grammatical sentence, loaded directly from construct.py.
     print("[04] Constructing a sentence from keywords...")
     keyword_text = ", ".join(keywords)
-    r = call("kw_to_sentence", "/api/construct", json={"text": keyword_text})
-    result = json_result(r, "kw_to_sentence")
+    stage4_dir = root / "04_Keyword_to_Sentence_Construction"
+    if str(stage4_dir) not in sys.path:
+        sys.path.insert(0, str(stage4_dir))
     try:
-        constructed_sentence = str(result["output_sentence"]).strip()
-    except (KeyError, TypeError) as exc:
-        raise SystemExit(
-            f"Stage 'kw_to_sentence' returned an invalid response: {r.text[:300]}"
-        ) from exc
+        from construct import SentenceConstructor
+        constructor = SentenceConstructor(model_path=str(stage4_dir / "saved_model"))
+        constructed_sentence = constructor.construct(keyword_text).strip()
+    except OSError as exc:
+        if exc.errno == 4551 or "c10.dll" in str(exc):
+            raise SystemExit(
+                "Stage 'kw_to_sentence' could not load PyTorch because Windows "
+                "Application Control blocked c10.dll. Ask your administrator to "
+                "approve the Python/PyTorch installation."
+            ) from exc
+        raise
     if not constructed_sentence:
         raise SystemExit("Stage 'kw_to_sentence' returned an empty sentence.")
     (work / "constructed_sentence.txt").write_text(
         constructed_sentence, encoding="utf-8"
     )
     print(f"     saved {work / 'constructed_sentence.txt'}")
+
+    # Stage 05a: translate keywords for the terminology/phonetic bridge.
+    print("[05a] Translating keywords for terminology support...")
+    r = call(
+        "kw_translation",
+        "/api/translate-batch",
+        json={"keywords": keywords, "target_language": "hindi"},
+    )
+    translation_result = json_result(r, "kw_translation")
+    (work / "translated_keywords.json").write_text(
+        json.dumps(translation_result, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    print(f"     saved {work / 'translated_keywords.json'}")
 
     # Stage 05b: sentence -> meaningful Hindi précis.
     print("[05b] Re-forming and compressing the sentence...")
@@ -225,11 +351,16 @@ if __name__ == "__main__":
 
     input_argument = sys.argv[1]
     work_dir = None
-    if len(sys.argv) > 2:
-        if len(sys.argv) != 4 or sys.argv[2] != "--work-dir":
+    auto_start = True
+    args = sys.argv[2:]
+    if args:
+        if len(args) == 2 and args[0] == "--work-dir":
+            work_dir = args[1]
+        elif len(args) == 1 and args[0] == "--no-auto-start":
+            auto_start = False
+        else:
             raise SystemExit(
                 'Usage: python orchestrator.py "path\\to\\video.mp4" '
-                '[--work-dir "output\\folder"]'
+                '[--work-dir "output\\folder"] [--no-auto-start]'
             )
-        work_dir = sys.argv[3]
-    run_pipeline(input_argument, work_dir)
+    run_pipeline(input_argument, work_dir, auto_start=auto_start)
