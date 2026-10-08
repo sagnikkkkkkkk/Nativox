@@ -1,0 +1,13 @@
+{
+  "original_input": "A picture of a young girl coming to a party with friends.",
+  "original_words": 12,
+  "step1_meaningful_english": "A picture of a young girl coming to a party with friends.",
+  "step1_meaningful_hindi": "दोस्तों के साथ पार्टी में आ रही एक युवा लड़की की तस्वीर।",
+  "step1_removed_fillers": [],
+  "step2_precise_english": "A picture of a young girl coming to a party with friends.",
+  "step2_precise_hindi": "दोस्तों के साथ पार्टी में आ रही एक युवा लड़की की तस्वीर।",
+  "precise_words": 12,
+  "retention_ratio_pct": 100.0,
+  "is_within_budget": true,
+  "notes": "Step 1: Meaning restored from keywords. Step 2: Precise budget applied."
+}

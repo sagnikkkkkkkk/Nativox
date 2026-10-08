@@ -26,6 +26,10 @@ for %%F in (
     "%ROOT%\01_MP4_to_MP3\backend\requirements.txt"
     "%ROOT%\02_MP3_to_Text\backend\requirements.txt"
     "%ROOT%\03_Text_to_Keyword\backend\requirements.txt"
+    "%ROOT%\04_Keyword_to_Sentence_Construction\requirements.txt"
+    "%ROOT%\05b_Sentence_Reformation__Atanu\backend\requirements.txt"
+    "%ROOT%\06_Converted_Text_to_MP3\backend\requirements.txt"
+    "%ROOT%\07_Merge_MP3_with_MP4\backend\requirements.txt"
 ) do (
     if not exist "%%~F" (
         echo Missing requirements file: %%~F
