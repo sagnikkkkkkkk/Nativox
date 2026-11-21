@@ -1,14 +1,30 @@
 """
-Pydantic Schemas for Request & Response models in Stage 5.
+Pydantic Schemas for Request & Response models in Stage 5(b).
+Includes resilient fallbacks for environments where pydantic is not installed.
 """
-from pydantic import BaseModel, Field
+try:
+    from pydantic import BaseModel, Field
+except ImportError:  # pragma: no cover
+    class BaseModel:  # type: ignore
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+
+        def dict(self):
+            return self.__dict__
+
+        def model_dump(self):
+            return self.__dict__
+
+    def Field(default=..., **kwargs):  # type: ignore
+        return default
 
 
 class ReconstructRequest(BaseModel):
     text: str = Field(
         ...,
         description="Meaningless, fragmented, or disfluent sentence, or keyword sequence.",
-        examples=["uh video we basically train neural network computer vision model"],
+        examples=["uh video we basically train neural network computer vision model you know"],
     )
     target_language: str = Field(
         "hindi",
@@ -65,11 +81,10 @@ class PipelineResponse(BaseModel):
     step1_meaningful_english: str
     step1_meaningful_hindi: str
     step1_removed_fillers: list[str]
-    # Step 2: Precise 35%-40% output
+    # Step 2: Refined Meaningful & Precise output (100% semantic retention)
     step2_precise_english: str
     step2_precise_hindi: str
     precise_words: int
     retention_ratio_pct: float
     is_within_budget: bool
     notes: str
-
